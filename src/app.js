@@ -6,6 +6,7 @@ const app = express();
 const path = require("path");
 const bodyParser = require('body-parser');
 const fs = require("fs");
+const cors = require("cors");
 
 // Import Local modules
 require("./db/conn");                                       // connection with mongodb
@@ -19,6 +20,10 @@ app.use(express.json());
 
 // Use bodyParser
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
+// to avoid cors header error
+app.use(cors());
 
 
 // To load index.html
