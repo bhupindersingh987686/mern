@@ -81,7 +81,7 @@ app.post("/api/phonebook/save", (req,res) =>
 app.get('/api/phonebook/:name', (req, res) =>                             // colon is used for URL parameter
 {
     // check in database with that name and return
-    Register.find({name : req.params.name}, (err,data) => 
+    Register.find( { $or : [ {name : req.params.name}, {phoneno : String(req.params.name)} ] }, (err,data) => 
     {
         if(err)
         {
