@@ -7,6 +7,8 @@ const path = require("path");
 const bodyParser = require('body-parser');
 const fs = require("fs");
 const cors = require("cors");
+var validator = require('validator');
+
 
 // Import Local modules
 require("./db/conn");                                       // connection with mongodb
@@ -40,6 +42,7 @@ app.use(cors());
 // send all the documents present in database when website opens (getall())
 app.get('/api/phonebook', (req, res) =>                             // colon is used for URL parameter
 {
+    console.log("hello");
     Register.find({}, (err,data) => 
     {
         if(err)
@@ -59,18 +62,29 @@ app.get('/api/phonebook', (req, res) =>                             // colon is 
 // When post request is made from the client      (SAVE IN DATABASE)
 app.post("/api/phonebook/save", (req,res) => 
 {
-    // Insert the data from the form into database
-    try
+    if(validator.isEmail(req.body.email) == true && validator.isMobilePhone(req.body.phoneno) == true && String(req.body.phoneno).length == 10)
     {
-        const registerPerson = new Register({ name : req.body.name, phoneno : req.body.phoneno, email : req.body.email});
-        registerPerson.save();
-        res.send("Saved in database successfully");
-        console.log("SAVED");
-        res.end();
+        // Insert the data from the form into database
+        try
+        {
+            const registerPerson = new Register({ name : req.body.name, phoneno : req.body.phoneno, email : req.body.email});
+            registerPerson.save();
+            res.send("Saved in database successfully");
+            console.log("SAVED");
+            res.end();
+        }
+        catch(error)
+        {
+            res.status(400).send(error);
+        }
     }
-    catch(error)
+    else
     {
-        res.status(400).send(error);
+        if(validator.isEmail(req.body.email) == false)
+            res.send("Please fill the correct email id");
+        else
+            res.send("please fill the correct contact no");
+        res.end();
     }
 }); 
 
@@ -97,56 +111,32 @@ app.get('/api/phonebook/:name', (req, res) =>                             // col
 
 
 // UPDATE
-app.patch('/api/phonebook/update/:name', (req, res) =>
+app.patch('/api/phonebook/update', (req, res) =>
 {
     // phoneno
-    if(req.body.phoneno !== undefined)
+    Register.updateMany({_id : req.body.id}, {$set : {name : req.body.name, phoneno : req.body.phoneno, email : req.body.email}}, function(err)
     {
-        Register.updateOne({name : req.params.name}, {$set : {phoneno : req.body.phoneno}}, function(err)
+        if(err)
         {
-            if(err)
-            {
-                res.send("<h1> Server side error</h1>");
-                console.log(err);
-                res.end();
-            }
-            else
-            {
-                res.send("<h1> Updated </h1>");
-                console.log("Updated");
-                res.end();
-            }
-        });
-    }
-
-    // email
-    if(req.body.email !== undefined)
-    {
-        Register.updateOne({name : req.params.name}, {$set : {email : req.body.email}}, function(err)
+            res.send("<h1> Server side error</h1>");
+            console.log(err);
+            res.end();
+        }
+        else
         {
-            if(err)
-            {
-                res.send("<h1> Server side error</h1>");
-                console.log(err);
-                res.end();
-            }
-            else
-            {
-                res.send("<h1> Updated </h1>");
-                console.log("Updated");
-                res.end();
-            }
-        });
-    }
-    
+            res.send("<h1> Updated </h1>");
+            console.log("Updated");
+            res.end();
+        }
+    });
 });
 
 
 
 // DELETE
-app.delete('/api/phonebook/delete/:name', (req, res) =>
+app.delete('/api/phonebook/delete', (req, res) =>
 {
-    Register.deleteOne({ name: {$eq : req.params.name} })                   // Returns promise
+    Register.deleteOne({ _id: {$eq : req.body.id} })                   // Returns promise
     .then( () => 
     { 
         res.send("<h1> Deleted Successfully </h1>"); 
