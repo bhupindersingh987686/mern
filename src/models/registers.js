@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 // Schema : structure of the document (defines the datatype for each field) , default values, validator
 const contactlistSchema = new mongoose.Schema({
     name : {type : String},
-    phoneno : {type : String},
+    phoneno : {type : String, unique : true},
     email : {type : String},
 });
 
