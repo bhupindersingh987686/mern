@@ -99,7 +99,7 @@ app.get('/api/phonebook/:name', (req, res) =>                             // col
     {
         if(err)
         {
-            res.send("<h1>Server side error</h1>");
+            res.json({"message" : "Server side error"});
             console.log(err);        
             res.end();
         }
@@ -118,13 +118,13 @@ app.patch('/api/phonebook/update', (req, res) =>
     {
         if(err)
         {
-            res.send("<h1> Server side error</h1>");
+            res.json({"message" : "Server side error"});
             console.log(err);
             res.end();
         }
         else
         {
-            res.send("<h1> Updated </h1>");
+            res.json({"message" : "Updated successfully"});
             console.log("Updated");
             res.end();
         }
@@ -139,13 +139,14 @@ app.delete('/api/phonebook/delete', (req, res) =>
     Register.deleteOne({ _id: {$eq : req.body.id} })                   // Returns promise
     .then( () => 
     { 
-        res.send("<h1> Deleted Successfully </h1>"); 
+        // res.send("<h1> Deleted Successfully </h1>");
+        res.json({"message" : "Deleted successfully"}); 
         console.log("Deleted"); 
         res.end();
     })
     .catch( (error) => 
     { 
-        res.send("<h1> Server side error </h1> "); 
+        res.json({"message" : "Server side error"});
         console.log(error); 
         res.end();
     }); 
