@@ -42,17 +42,12 @@ app.use(cors());
 // send all the documents present in database when website opens (getall())
 app.get('/api/phonebook', (req, res) =>                             // colon is used for URL parameter
 {
-    console.log("hello");
     Register.find({}, (err,data) => 
     {
         if(err)
-        {
-            res.send("<h1>Server side error</h1>");
-            console.log(err);   
-            res.end();     
-        }
+            res.status(400).send({"message" : "Server side error"});
         else
-            res.json(data);
+            res.status(200).send(data);
     });
 });
 
@@ -69,9 +64,7 @@ app.post("/api/phonebook/save", (req,res) =>
         {
             const registerPerson = new Register({ name : req.body.name, phoneno : req.body.phoneno, email : req.body.email});
             registerPerson.save();
-            res.send("Saved in database successfully");
-            console.log("SAVED");
-            res.end();
+            res.status(200).send({"message" : "Saved successfully"});
         }
         catch(error)
         {
@@ -81,10 +74,9 @@ app.post("/api/phonebook/save", (req,res) =>
     else
     {
         if(validator.isEmail(req.body.email) == false)
-            res.send("Please fill the correct email id");
+            res.status(422).send({"message" : "Please enter correct email id"});
         else
-            res.send("please fill the correct contact no");
-        res.end();
+            res.status(422).send({"message" : "Please enter correct phone no"});
     }
 }); 
 
@@ -98,13 +90,11 @@ app.get('/api/phonebook/:name', (req, res) =>                             // col
     Register.find( { $or : [ {name : req.params.name}, {phoneno : String(req.params.name)} ] }, (err,data) => 
     {
         if(err)
-        {
-            res.json({"message" : "Server side error"});
-            console.log(err);        
-            res.end();
-        }
+            res.status(400).send({"message" : "Server side error"});
         else
-            res.json(data);
+        {
+            res.status(200).send(data);
+        }
     })
 });
 
@@ -117,17 +107,9 @@ app.patch('/api/phonebook/update', (req, res) =>
     Register.updateMany({_id : req.body.id}, {$set : {name : req.body.name, phoneno : req.body.phoneno, email : req.body.email}}, function(err)
     {
         if(err)
-        {
-            res.json({"message" : "Server side error"});
-            console.log(err);
-            res.end();
-        }
+            res.status(400).send({"message" : "Server side error"});
         else
-        {
-            res.json({"message" : "Updated successfully"});
-            console.log("Updated");
-            res.end();
-        }
+            res.status(400).send({"message" : "Updated successfully"});
     });
 });
 
@@ -139,16 +121,11 @@ app.delete('/api/phonebook/delete', (req, res) =>
     Register.deleteOne({ _id: {$eq : req.body.id} })                   // Returns promise
     .then( () => 
     { 
-        // res.send("<h1> Deleted Successfully </h1>");
-        res.json({"message" : "Deleted successfully"}); 
-        console.log("Deleted"); 
-        res.end();
+        res.status(200).send({"message" : "Deleted successfully"}); 
     })
     .catch( (error) => 
     { 
-        res.json({"message" : "Server side error"});
-        console.log(error); 
-        res.end();
+        res.status(200).send({"message" : "Server side error"});
     }); 
 }); 
 
