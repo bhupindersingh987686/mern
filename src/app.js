@@ -87,7 +87,7 @@ app.post("/api/phonebook/save", (req,res) =>
 app.get('/api/phonebook/:name', (req, res) =>                             // colon is used for URL parameter
 {
     // check in database with that name and return
-    Register.find( { $or : [ {name : req.params.name}, {phoneno : String(req.params.name)} ] }, (err,data) => 
+    Register.find( { $or : [ {name : req.params.name}, {phoneno : String(req.params.name)}, {_id : req.params.name} ] }, (err,data) => 
     {
         if(err)
             res.status(400).send({"message" : "Server side error"});
@@ -104,12 +104,12 @@ app.get('/api/phonebook/:name', (req, res) =>                             // col
 app.patch('/api/phonebook/update', (req, res) =>
 {
     // phoneno
-    Register.updateMany({_id : req.body.id}, {$set : {name : req.body.name, phoneno : req.body.phoneno, email : req.body.email}}, function(err)
+    Register.updateOne({_id : req.body.id}, {$set : {name : req.body.name, phoneno : req.body.phoneno, email : req.body.email}}, function(err)
     {
         if(err)
             res.status(400).send({"message" : "Server side error"});
         else
-            res.status(400).send({"message" : "Updated successfully"});
+            res.status(200).send({"name" : `${req.body.name}`, "phone" : `${req.body.phoneno}`, "email" : `${req.body.email}`});
     });
 });
 
